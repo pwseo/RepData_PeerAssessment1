@@ -170,7 +170,7 @@ ds.full <- transform(ds.full,
                      wday = as.factor(ifelse(as.POSIXlt(date)$wday %in% 1:5,
                                              'weekday', 'weekend')))
 
-# Re-aggregate data
+# Re-aggregate data, but this time include the 'wday' column as well
 ds.new <- aggregate(steps ~ interval + wday, data = ds.full, FUN = mean)
 
 # And now with lattice:

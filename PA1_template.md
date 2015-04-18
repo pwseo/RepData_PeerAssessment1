@@ -28,11 +28,19 @@ dataset <- transform(dataset, date = as.Date(date, '%Y-%m-%d'))
 Now that the data is properly loaded and processed, this is what the dataset looks like:
 
 
+```r
+str(dataset)
+```
+
 ```
 ## 'data.frame':	17568 obs. of  3 variables:
 ##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
 ##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
 ##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
+
+```r
+summary(dataset)
 ```
 
 ```
@@ -62,6 +70,10 @@ Then we summarize the data as described, yielding the following `data.frame`:
 
 ```r
 ds.comp.date <- aggregate(steps ~ date, FUN = sum, data = ds.complete)
+```
+
+```r
+str(ds.comp.date)
 ```
 
 ```
@@ -94,6 +106,12 @@ with(ds.comp.date, {
 
 We were also asked to report both the median and the mean number of steps (which I have also included in the previous histogram):
 
+
+```r
+with(ds.comp.date, cat(
+  sprintf("Median: %.1f\nMean: %.1f", median(steps), mean(steps))
+))
+```
 
 ```
 ## Median: 10765.0
@@ -140,6 +158,12 @@ with(ds.comp.int, {
 We can easily discover which interval had the highest average number of steps (we calculated it as `max.x` in the previous plot):
 
 
+```r
+with(ds.comp.int,
+  cat(paste('Interval with maximum average number of steps:',
+            interval[which.max(steps)])))
+```
+
 ```
 ## Interval with maximum average number of steps: 835
 ```
@@ -177,6 +201,14 @@ ds.full <- merge(dataset, ds.comp.median, by = 'interval',
 Our `ds.full` dataset now looks like this (a few random lines from it):
 
 
+```r
+# Create a random sample of 7 entries
+set.seed(42)
+randomsample <- sample(1:nrow(ds.full), 7)
+
+ds.full[randomsample,]
+```
+
 ```
 ##       interval steps       date steps.median
 ## 16072     2155     0 2012-11-18            0
@@ -192,8 +224,6 @@ Now we only have to replace the `NA`s in the `steps` column with the correspondi
 
 
 ```r
-# Replace `NA`s in the 'steps' variable with the corresponding value on the
-# 'steps.median' column
 missing <- is.na(ds.full$steps)
 ds.full$steps[missing] <- ds.full$steps.median[missing]
 
@@ -203,6 +233,10 @@ ds.full <- subset(ds.full, select = -steps.median)
 
 Notice how the `NA`s have disappeared and have been replaced by the median number of steps for the corresponding interval:
 
+
+```r
+ds.full[randomsample,]
+```
 
 ```
 ##       interval steps       date
@@ -244,6 +278,12 @@ with(ds.full.date, {
 And now the median and mean values:
 
 
+```r
+with(ds.full.date, cat(
+  sprintf("Median: %.1f\nMean: %.1f", median(steps), mean(steps))
+))
+```
+
 ```
 ## Median: 10395.0
 ## Mean: 9503.9
@@ -266,6 +306,10 @@ ds.full$wday <- as.factor(ifelse(is.wday, 'weekday', 'weekend'))
 ```
 
 Here's how it looks like now:
+
+```r
+ds.full[randomsample,]
+```
 
 ```
 ##       interval steps       date    wday

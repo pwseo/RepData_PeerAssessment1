@@ -33,7 +33,7 @@ dataset <- transform(dataset, date = as.Date(date, '%Y-%m-%d'))
 
 Now that the data is properly loaded and processed, this is what the dataset looks like:
 
-```{r, echo = F}
+```{r}
 str(dataset)
 summary(dataset)
 ```
@@ -53,7 +53,7 @@ Then we summarize the data as described, yielding the following `data.frame`:
 ```{r aggreg-1}
 ds.comp.date <- aggregate(steps ~ date, FUN = sum, data = ds.complete)
 ```
-```{r, echo = F}
+```{r}
 str(ds.comp.date)
 ```
 
@@ -79,9 +79,7 @@ with(ds.comp.date, {
 
 We were also asked to report both the median and the mean number of steps (which I have also included in the previous histogram):
 
-```{r mean-median, echo = F}
-# STEP 3. Calculate and report the median and mean steps taken per day
-# (I have also reported these values in the histogram's legend)
+```{r mean-median}
 with(ds.comp.date, cat(
   sprintf("Median: %.1f\nMean: %.1f", median(steps), mean(steps))
 ))
@@ -123,7 +121,7 @@ with(ds.comp.int, {
 
 We can easily discover which interval had the highest average number of steps (we calculated it as `max.x` in the previous plot):
 
-```{r maxsteps, echo = F}
+```{r maxsteps}
 with(ds.comp.int,
   cat(paste('Interval with maximum average number of steps:',
             interval[which.max(steps)])))
@@ -155,16 +153,17 @@ ds.full <- merge(dataset, ds.comp.median, by = 'interval',
 
 Our `ds.full` dataset now looks like this (a few random lines from it):
 
-```{r, echo = F}
+```{r}
+# Create a random sample of 7 entries
 set.seed(42)
-ds.full[sample(nrow(ds.full), 7),]
+randomsample <- sample(1:nrow(ds.full), 7)
+
+ds.full[randomsample,]
 ```
 
 Now we only have to replace the `NA`s in the `steps` column with the corresponding value from the `steps.median` column. Afterwards we delete the `steps.median` column.
 
 ```{r imput-2}
-# Replace `NA`s in the 'steps' variable with the corresponding value on the
-# 'steps.median' column
 missing <- is.na(ds.full$steps)
 ds.full$steps[missing] <- ds.full$steps.median[missing]
 
@@ -174,9 +173,8 @@ ds.full <- subset(ds.full, select = -steps.median)
 
 Notice how the `NA`s have disappeared and have been replaced by the median number of steps for the corresponding interval:
 
-```{r, echo = F}
-set.seed(42)
-ds.full[sample(nrow(ds.full), 7),]
+```{r}
+ds.full[randomsample,]
 ```
 
 To find out what happened to the overall distribution of the data after we corrected these `NA` issues, we can simply plot a new histogram and inspect the median and mean for the new data:
@@ -204,7 +202,7 @@ with(ds.full.date, {
 
 And now the median and mean values:
 
-```{r, echo = F}
+```{r}
 with(ds.full.date, cat(
   sprintf("Median: %.1f\nMean: %.1f", median(steps), mean(steps))
 ))
@@ -226,9 +224,8 @@ ds.full$wday <- as.factor(ifelse(is.wday, 'weekday', 'weekend'))
 ```
 
 Here's how it looks like now:
-```{r, echo = F}
-set.seed(42)
-ds.full[sample(nrow(ds.full), 7),]
+```{r}
+ds.full[randomsample,]
 ```
 
 Now we're ready to re-aggregate the data, but this time we'll keep the newly created `wday` column as well so we can later on plot the data separately for each level of this factor:

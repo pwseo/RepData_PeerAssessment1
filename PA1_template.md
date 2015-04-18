@@ -1,15 +1,11 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 First of all, we must make sure the data file exists and then load it:
-```{r unzip, echo=T}
+
+```r
 if (!file.exists('activity.csv')) {
   # Assume 'activity.zip' exists (it is included in the git repo)
   unzip('activity.zip')
@@ -23,7 +19,8 @@ dataset <- transform(dataset, date = as.Date(date, '%Y-%m-%d'))
 
 ## What is mean total number of steps taken per day?
 
-```{r bydate, echo = T}
+
+```r
 # STEP 0. Consider only rows without missing values
 ds.complete <- dataset[complete.cases(dataset),]
 
@@ -49,17 +46,32 @@ with(ds.comp.date, {
 })
 ```
 
-```{r mean-and-median, echo = T}
+![](./PA1_template_files/figure-html/bydate-1.png) 
+
+
+```r
 # STEP 3. Calculate and report the median and mean steps taken per day
 # (I have also reported these values in the histogram's legend)
 mean(ds.comp.date$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(ds.comp.date$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 
-```{r dailypat, echo = T}
+
+```r
 ds.comp.int <- aggregate(steps ~ interval, data = ds.complete, FUN = mean)
 
 with(ds.comp.int, {
@@ -80,10 +92,17 @@ with(ds.comp.int, {
 })
 ```
 
-```{r maxsteps}
+![](./PA1_template_files/figure-html/dailypat-1.png) 
+
+
+```r
 # Report the interval with the maximum number of steps (already shown in
 # the plot above, in the legend).
 with(ds.comp.int, interval[which.max(steps)])
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -91,10 +110,17 @@ with(ds.comp.int, interval[which.max(steps)])
 It is now time to deal with all those `NA` values we have been ignoring thus far.
 I'll use the following strategy: for every `NA` in the original dataset, the new dataset will have the *median* value of steps for the corresponding `interval`. I have chosen the median and not the mean because it is much less affected by extreme values, giving us a more conservative guess of what the real value might be.
 
-```{r missing, echo = T}
+
+```r
 # Calculate and report the number of missing values in the dataset
 sum(is.na(dataset))
+```
 
+```
+## [1] 2304
+```
+
+```r
 # Calculate median value of steps for each interval
 ds.comp.median <- aggregate(steps ~ interval, data = ds.complete, FUN = median)
 
@@ -131,20 +157,25 @@ with(ds.full.int, {
 })
 ```
 
+![](./PA1_template_files/figure-html/missing-1.png) 
+
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r lattice, echo = T}
+
+```r
 # Create a new factor variable representing whether a given date corresponds to
 # a 'weekday' or a 'weekend':
 ds.full <- transform(ds.full,
                      wday = as.factor(ifelse(as.POSIXlt(date)$wday %in% 1:5,
                                              'weekday', 'weekend')))
 
-# Re-aggregate data, but this time include the 'wday' column as well
+# Re-aggregate data
 ds.new <- aggregate(steps ~ interval + wday, data = ds.full, FUN = mean)
 
 # And now with lattice:
 library(lattice)
 xyplot(steps ~ interval | wday, data = ds.new, type = 'l', layout = c(1,2))
 ```
+
+![](./PA1_template_files/figure-html/lattice-1.png) 
